@@ -21,6 +21,19 @@ description: Take pictures with the device camera.
 #         under the License.
 -->
 
+## About this fork
+
+This fork updates the latest version of the apache cordova-plugin-camera plugin that is used by Mi-Corporation (now Ideagen) as of August 2023, which is version 2.4.1.
+The purpose of the update is to provide support for Android version 33, specifically to utilize the permissions READ_MEDIA_IMAGE and READ_MEDIA_VIDEO in place of
+READ_EXTERNAL_STORAGE. This change is required by Android version 33 as documented here: https://developer.android.com/about/versions/13/behavior-changes-13.
+
+Because Mi-Corporation (now Ideagen) still targets cordova-android version 8.0.0, it is not possible to reference the latest version of apache cordova-plugin-camera.
+Instead we will apply the necessary update to version 2.4.1 of cordova-plugin-camera in order to support Android version 33.
+
+The changes applied to support Android version 33 are based on PR #844 in the apache cordova-plugin-camera github repository
+https://github.com/apache/cordova-plugin-camera/pull/844
+
+
 |Android 4.4|Android 5.1|Android 6.0|iOS 9.3|iOS 10.0|Windows 10 Store|Travis CI|
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|
 |[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=android-4.4,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=android-4.4,PLUGIN=cordova-plugin-camera/)|[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=android-5.1,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=android-5.1,PLUGIN=cordova-plugin-camera/)|[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=android-6.0,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=android-6.0,PLUGIN=cordova-plugin-camera/)|[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=ios-9.3,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=ios-9.3,PLUGIN=cordova-plugin-camera/)|[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=ios-10.0,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=ios-10.0,PLUGIN=cordova-plugin-camera/)|[![Build Status](http://cordova-ci.cloudapp.net:8080/buildStatus/icon?job=cordova-periodic-build/PLATFORM=windows-10-store,PLUGIN=cordova-plugin-camera)](http://cordova-ci.cloudapp.net:8080/job/cordova-periodic-build/PLATFORM=windows-10-store,PLUGIN=cordova-plugin-camera/)|[![Build Status](https://travis-ci.org/apache/cordova-plugin-camera.svg?branch=master)](https://travis-ci.org/apache/cordova-plugin-camera)
