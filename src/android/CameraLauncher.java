@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.apache.cordova.BuildHelper;
@@ -40,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -100,6 +102,16 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     //Where did this come from?
     private static final int CROP_CAMERA = 100;
 
+
+    /*
+     * Since Mi-Corporation uses cordova-android version 8.0.0 which only supports up to version 28
+     * of the Android SDK, we must manually declare the new Manifest.permission constant values that were
+     * introduced later as well as the latest build constant.
+    */
+    private static final String MANIFEST_PERMISSION_READ_MEDIA_IMAGES = "android.permission.READ_MEDIA_IMAGES";
+    private static final int BUILD_VERSION_CODES_TIRAMISU = 33;
+
+
     private int mQuality;                   // Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
     private int targetWidth;                // desired width of the image
     private int targetHeight;               // desired height of the image
@@ -112,8 +124,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     private boolean correctOrientation;     // Should the pictures orientation be corrected
     private boolean orientationCorrected;   // Has the picture's orientation been corrected
     private boolean allowEdit;              // Should we allow the user to crop the image.
-
-    protected final static String[] permissions = { Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE };
 
     public CallbackContext callbackContext;
     private int numPics;
@@ -185,8 +195,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
                 }
                 else if ((this.srcType == PHOTOLIBRARY) || (this.srcType == SAVEDPHOTOALBUM)) {
                     // FIXME: Stop always requesting the permission
-                    if(!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        PermissionHelper.requestPermission(this, SAVE_TO_ALBUM_SEC, Manifest.permission.READ_EXTERNAL_STORAGE);
+                    String[] permissions = getPermissions(true, mediaType);
+                    if(!hasPermissions(permissions)) {
+                        PermissionHelper.requestPermissions(this, SAVE_TO_ALBUM_SEC, permissions);
                     } else {
                         this.getImage(this.srcType, destType, encodingType);
                     }
@@ -212,6 +223,27 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
     //--------------------------------------------------------------------------
     // LOCAL METHODS
     //--------------------------------------------------------------------------
+
+   private String[] getPermissions(boolean storageOnly, int mediaType) {
+        ArrayList<String> permissions = new ArrayList<>();
+
+        if (android.os.Build.VERSION.SDK_INT >= BUILD_VERSION_CODES_TIRAMISU) {
+            // Android API 33 and higher
+            permissions.add(MANIFEST_PERMISSION_READ_MEDIA_IMAGES);
+        } else {
+            // Android API 32 or lower
+            permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+            permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (!storageOnly) {
+            // Add camera permission when not storage.
+            permissions.add(Manifest.permission.CAMERA);
+        }
+
+        return permissions.toArray(new String[0]);
+    }
+
 
     private String getTempDirectoryPath() {
         File cache = null;
@@ -245,7 +277,14 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * @param encodingType           Compression quality hint (0-100: 0=low quality & high compression, 100=compress of max quality)
      */
     public void callTakePicture(int returnType, int encodingType) {
-        boolean saveAlbumPermission = PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        String[] storagePermissions = getPermissions(true, mediaType);
+        boolean saveAlbumPermission;
+        if (this.saveToPhotoAlbum) {
+            saveAlbumPermission = hasPermissions(storagePermissions);
+        } else {
+            saveAlbumPermission = true;
+        }
+
         boolean takePicturePermission = PermissionHelper.hasPermission(this, Manifest.permission.CAMERA);
 
         // CB-10120: The CAMERA permission does not need to be requested unless it is declared
@@ -276,9 +315,9 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         } else if (saveAlbumPermission && !takePicturePermission) {
             PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.CAMERA);
         } else if (!saveAlbumPermission && takePicturePermission) {
-            PermissionHelper.requestPermission(this, TAKE_PIC_SEC, Manifest.permission.READ_EXTERNAL_STORAGE);
+            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, storagePermissions);
         } else {
-            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, permissions);
+            PermissionHelper.requestPermissions(this, TAKE_PIC_SEC, getPermissions(false, mediaType));
         }
     }
 
@@ -1219,6 +1258,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         // delete the duplicate file if the difference is 2 for file URI or 1 for Data URL
         if ((currentNumOfImages - numPics) == diff) {
             cursor.moveToLast();
+            @SuppressLint("Range")
             int id = Integer.valueOf(cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media._ID)));
             if (diff == 2) {
                 id--;
@@ -1372,6 +1412,15 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
         }
 
         this.callbackContext = callbackContext;
+    }
+
+    private boolean hasPermissions(String[] permissions) {
+        for (String permission: permissions) {
+            if (!PermissionHelper.hasPermission(this, permission)) {
+                return false;
+            }
+        }
+        return true;
     }
 
  /*
