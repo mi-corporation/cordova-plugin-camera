@@ -109,7 +109,6 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
      * introduced later as well as the latest build constant.
     */
     private static final String MANIFEST_PERMISSION_READ_MEDIA_IMAGES = "android.permission.READ_MEDIA_IMAGES";
-    private static final String MANIFEST_PERMISSION_READ_MEDIA_VIDEO = "android.permission.READ_MEDIA_VIDEO";
     private static final int BUILD_VERSION_CODES_TIRAMISU = 33;
 
 
@@ -230,18 +229,7 @@ public class CameraLauncher extends CordovaPlugin implements MediaScannerConnect
 
         if (android.os.Build.VERSION.SDK_INT >= BUILD_VERSION_CODES_TIRAMISU) {
             // Android API 33 and higher
-            switch (mediaType) {
-                case PICTURE:
-                    permissions.add(MANIFEST_PERMISSION_READ_MEDIA_IMAGES);
-                    break;
-                case VIDEO:
-                    permissions.add(MANIFEST_PERMISSION_READ_MEDIA_VIDEO);
-                    break;
-                default:
-                    permissions.add(MANIFEST_PERMISSION_READ_MEDIA_IMAGES);
-                    permissions.add(MANIFEST_PERMISSION_READ_MEDIA_VIDEO);
-                    break;
-            }
+            permissions.add(MANIFEST_PERMISSION_READ_MEDIA_IMAGES);
         } else {
             // Android API 32 or lower
             permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);

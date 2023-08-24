@@ -24,8 +24,8 @@ description: Take pictures with the device camera.
 ## About this fork
 
 This fork updates the latest version of the apache cordova-plugin-camera plugin that is used by Mi-Corporation (now Ideagen) as of August 2023, which is version 2.4.1.
-The purpose of the update is to provide support for Android version 33, specifically to utilize the permissions READ_MEDIA_IMAGE and READ_MEDIA_VIDEO in place of
-READ_EXTERNAL_STORAGE. This change is required by Android version 33 as documented here: https://developer.android.com/about/versions/13/behavior-changes-13.
+The purpose of the update is to provide support for Android version 33, specifically to utilize the permission READ_MEDIA_IMAGE in place of READ_EXTERNAL_STORAGE.
+This change is required by Android version 33 as documented here: https://developer.android.com/about/versions/13/behavior-changes-13.
 
 Because Mi-Corporation (now Ideagen) still targets cordova-android version 8.0.0, it is not possible to reference the latest version of apache cordova-plugin-camera.
 Instead we will apply the necessary update to version 2.4.1 of cordova-plugin-camera in order to support Android version 33.
